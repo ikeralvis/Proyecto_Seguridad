@@ -1,6 +1,4 @@
 import React from "react";
-import { cn } from "@/lib/utils";
-
 interface SplitViewProps {
   humanView: React.ReactNode;
   machineView: React.ReactNode;
@@ -19,12 +17,12 @@ export default function SplitView({
       {/* Top Split View */}
       <div className="flex flex-1 overflow-hidden border-b border-neutral-800">
         {/* Left Side: Human View */}
-        <div className="flex-1 flex flex-col border-r border-neutral-800 bg-neutral-100 dark:bg-neutral-900">
-          <div className="px-4 py-2 bg-neutral-200 dark:bg-neutral-800 border-b border-neutral-300 dark:border-neutral-700 text-xs font-medium text-neutral-500 dark:text-neutral-400 uppercase tracking-wider flex items-center justify-between">
+        <div className="flex-1 flex flex-col border-r border-neutral-800 bg-neutral-950">
+          <div className="px-4 py-2 bg-neutral-900 border-b border-neutral-800 text-xs font-medium text-neutral-400 uppercase tracking-wider flex items-center justify-between">
             <span>Vista Humana</span>
-            <span className="bg-white dark:bg-neutral-700 px-2 flex items-center rounded h-5 shadow-sm">Navegador</span>
+            <span className="bg-neutral-950 px-2 flex items-center rounded h-5 border border-neutral-800">Navegador</span>
           </div>
-          <div className="flex-1 overflow-auto bg-white p-8">
+          <div className="flex-1 overflow-auto bg-neutral-950 p-6">
             {humanView}
           </div>
         </div>
@@ -58,7 +56,7 @@ export default function SplitView({
           <div className="px-4 py-2 border-b border-neutral-800 text-xs font-medium text-neutral-400 uppercase tracking-wider">
             Panel de Control
           </div>
-          <div className="flex-1 overflow-auto p-4 flex flex-col items-center justify-center">
+          <div className="flex-1 p-4 flex flex-col items-center justify-center">
             {controlPanel}
           </div>
         </div>

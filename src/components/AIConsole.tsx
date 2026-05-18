@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Terminal, Bug, ChevronDown, ChevronUp, AlertCircle, RefreshCw } from "lucide-react";
+import { Terminal, Bug, AlertCircle, RefreshCw } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface AIConsoleProps {
@@ -18,7 +18,7 @@ export default function AIConsole({ isLoading, response, debugPrompt, error }: A
       <div className="flex items-center justify-between px-4 py-2 bg-neutral-900/50 border-b border-neutral-800">
         <div className="flex items-center gap-2 text-neutral-500 text-[10px] uppercase font-bold tracking-widest">
           <Terminal className="w-3 h-3 text-blue-500" />
-          <span>Gemini-3-Flash.v1</span>
+          <span>Gemini-2.5-Flash</span>
           {isLoading && <RefreshCw className="w-3 h-3 animate-spin ml-2 text-blue-400" />}
         </div>
         
@@ -65,7 +65,7 @@ export default function AIConsole({ isLoading, response, debugPrompt, error }: A
               <div className="w-12 h-12 border-2 border-blue-500 border-t-transparent rounded-full animate-spin" />
               <Terminal className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-4 h-4 text-blue-500" />
             </div>
-            <p className="text-xs uppercase tracking-widest font-bold text-blue-500 animate-pulse">Analizando Documento...</p>
+            <p className="text-xs uppercase tracking-widest font-bold text-blue-500 animate-pulse">Analizando contenido...</p>
           </div>
         )}
 
@@ -85,15 +85,17 @@ export default function AIConsole({ isLoading, response, debugPrompt, error }: A
 
         {/* AI Success Content */}
         {!isLoading && !error && response && (
-          <div className="flex flex-col gap-6 animate-[fadeIn_0.5s_ease-out]">
+          <div className="flex flex-col gap-4 animate-[fadeIn_0.5s_ease-out]">
             <div className="flex items-center gap-3">
               <div className="w-8 h-8 rounded-full bg-blue-500/10 border border-blue-500/30 flex items-center justify-center">
                 <Terminal className="w-4 h-4 text-blue-500" />
               </div>
-              <span className="text-[10px] font-black uppercase text-neutral-400 tracking-tighter">Respuesta Assistant (Deep Research Mode)</span>
+              <span className="text-[10px] font-black uppercase text-neutral-400 tracking-tighter">Respuesta del modelo</span>
             </div>
-            <div className="pl-11 leading-relaxed text-neutral-100 text-lg font-medium whitespace-pre-wrap selection:bg-blue-500/30">
-              {response}
+            <div className="pl-11">
+              <div className="rounded-xl border border-neutral-800 bg-neutral-900/60 p-5 leading-relaxed text-neutral-100 text-base font-medium whitespace-pre-wrap selection:bg-blue-500/30">
+                {response}
+              </div>
             </div>
           </div>
         )}

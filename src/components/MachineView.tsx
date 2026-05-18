@@ -2,6 +2,35 @@ import React from "react";
 import { Terminal, ShieldX, Info, ScanSearch, Globe, Code } from "lucide-react";
 import { cn } from "@/lib/utils";
 
+const SUSPICIOUS_REGEX = /display\s*:\s*none|visibility\s*:\s*hidden|aria-hidden\s*=\s*["']?true|hidden\b|<!--|DIRECTIVA|INSTRUCCION|PROMPT|SISTEMA|IGNORE|IGNORA/gi;
+const SUSPICIOUS_TEST = /display\s*:\s*none|visibility\s*:\s*hidden|aria-hidden\s*=\s*["']?true|hidden\b|<!--|DIRECTIVA|INSTRUCCION|PROMPT|SISTEMA|IGNORE|IGNORA/i;
+
+function highlightSuspicious(line: string): React.ReactNode[] {
+  SUSPICIOUS_REGEX.lastIndex = 0;
+  const parts: React.ReactNode[] = [];
+  let lastIndex = 0;
+
+  for (const match of line.matchAll(SUSPICIOUS_REGEX)) {
+    const start = match.index ?? 0;
+    const end = start + match[0].length;
+    if (start > lastIndex) {
+      parts.push(line.slice(lastIndex, start));
+    }
+    parts.push(
+      <span key={`${start}-${end}`} className="text-red-300 font-semibold">
+        {line.slice(start, end)}
+      </span>
+    );
+    lastIndex = end;
+  }
+
+  if (lastIndex < line.length) {
+    parts.push(line.slice(lastIndex));
+  }
+
+  return parts.length ? parts : [line];
+}
+
 interface MachineViewProps {
   labMode: "pdf" | "web";
   metadata?: { author: string; title: string; keywords: string };
@@ -33,6 +62,16 @@ export default function MachineView({
   if (labMode === "web") {
     return (
       <div className="flex flex-col h-full space-y-6 font-mono text-xs overflow-auto pb-8">
+        {!rawHtml?.trim() && (
+          <div className="rounded-lg border border-neutral-800 bg-neutral-900/60 p-4 text-neutral-400">
+            No hay HTML para analizar. Pega o edita el contenido en la vista humana.
+          </div>
+        )}
+        {!hasData && rawHtml?.trim() && (
+          <div className="rounded-lg border border-neutral-800 bg-neutral-900/60 p-4 text-neutral-400">
+            Previsualizacion del HTML. Pulsa Analizar para extraer texto y ver la respuesta.
+          </div>
+        )}
         <section className="bg-[#1e1e1e] rounded-lg border border-neutral-800 shadow-xl overflow-hidden">
           <div className="px-4 py-2 bg-[#2d2d2d] flex items-center justify-between border-b border-[#1e1e1e]">
              <div className="flex items-center gap-2 text-neutral-400 font-bold uppercase tracking-tighter">
@@ -48,20 +87,22 @@ export default function MachineView({
           <div className="p-6 text-neutral-400 leading-relaxed overflow-x-auto">
             <pre className="whitespace-pre-wrap break-all">
               {rawHtml?.split('\n').map((line, i) => {
-                const isMalicious = line.includes('display: none') || line.includes('display:none') || line.includes('[DIRECTIVA CRÍTICA]');
+                const isMalicious = SUSPICIOUS_TEST.test(line);
                 return (
                   <div 
                     key={i} 
                     className={cn(
                       "group flex gap-4 -mx-2 px-2 transition-colors",
-                      !isDefenseActive && isMalicious ? "bg-red-500/10 text-red-300 ring-1 ring-red-500/20" : ""
+                      isMalicious
+                        ? isDefenseActive
+                          ? "bg-amber-500/10 text-amber-200 ring-1 ring-amber-500/20"
+                          : "bg-red-500/10 text-red-300 ring-1 ring-red-500/20"
+                        : ""
                     )}
                   >
                     <span className="text-neutral-600 w-6 text-right select-none">{i + 1}</span>
-                    <span className={cn(
-                      isMalicious && !isDefenseActive ? "font-bold" : ""
-                    )}>
-                      {line}
+                    <span className={cn(isMalicious ? "font-bold" : "")}>
+                      {highlightSuspicious(line)}
                     </span>
                   </div>
                 );
@@ -75,7 +116,7 @@ export default function MachineView({
             <Code className="w-3.5 h-3.5" /> Texto Procesado por el Extractor
           </h4>
           <p className="text-neutral-500 leading-relaxed italic">
-            "{visibleText || "El texto aparecerá aquí después del análisis..."}"
+            {visibleText || "El texto aparecerá aquí después del análisis..."}
           </p>
         </section>
       </div>

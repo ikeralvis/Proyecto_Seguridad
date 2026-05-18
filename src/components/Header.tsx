@@ -5,8 +5,8 @@ import { ShieldCheck, FileText, Globe } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface HeaderProps {
-  labMode: "pdf" | "web";
-  onLabModeChange: (mode: "pdf" | "web") => void;
+  labMode: "pdf" | "web" | "rag";
+  onLabModeChange: (mode: "pdf" | "web" | "rag") => void;
 }
 
 export default function Header({ labMode, onLabModeChange }: HeaderProps) {
@@ -41,6 +41,17 @@ export default function Header({ labMode, onLabModeChange }: HeaderProps) {
         >
           <Globe className="w-3.5 h-3.5" />
           Laboratorio Web
+        </button>
+        <button
+          onClick={() => onLabModeChange("rag")}
+          className={cn(
+            "flex items-center gap-2 px-4 py-1.5 rounded-md text-xs font-bold transition-all",
+            labMode === "rag" 
+              ? "bg-neutral-800 text-white shadow-sm ring-1 ring-neutral-700" 
+              : "text-neutral-500 hover:text-neutral-300"
+          )}
+        >
+          RAG Chat
         </button>
       </div>
 

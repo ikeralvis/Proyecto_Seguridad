@@ -20,7 +20,7 @@ export default function ControlPanel({
   isLoading 
 }: ControlPanelProps) {
   return (
-    <div className="flex flex-col items-center gap-6 w-full max-w-[240px] h-full justify-between py-6">
+    <div className="flex flex-col items-center gap-5 w-full max-w-[240px] py-2">
       <div className="w-full text-center">
         <div className="flex items-center justify-center gap-2 mb-1">
            {labMode === "pdf" ? <Terminal className="w-3 h-3 text-neutral-500" /> : <Globe className="w-3 h-3 text-neutral-500" />}
@@ -35,7 +35,7 @@ export default function ControlPanel({
         </p>
       </div>
 
-      <div className="flex flex-col items-center gap-4">
+      <div className="flex flex-col items-center gap-3">
         <button
           onClick={() => onToggle(!isDefenseActive)}
           className={cn(
@@ -73,7 +73,7 @@ export default function ControlPanel({
         onClick={onAnalyze}
         disabled={isDisabled}
         className={cn(
-          "w-full py-4 px-6 rounded-xl font-bold uppercase tracking-[0.15em] text-[11px] transition-all duration-300 flex items-center justify-center gap-2 shadow-2xl",
+          "w-full py-3.5 px-6 rounded-xl font-bold uppercase tracking-[0.15em] text-[11px] transition-all duration-300 flex items-center justify-center gap-2 shadow-2xl",
           isDisabled 
             ? "bg-neutral-800 text-neutral-600 grayscale cursor-not-allowed border border-neutral-700" 
             : "bg-[#7C3AED] hover:bg-[#6D28D9] text-white hover:scale-105 active:scale-95 shadow-indigo-500/30 ring-2 ring-indigo-400/20"

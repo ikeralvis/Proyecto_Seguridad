@@ -1,5 +1,5 @@
-import React from "react";
-import { UploadCloud, FileText, CheckCircle2, Globe, Code } from "lucide-react";
+import React, { useState } from "react";
+import { UploadCloud, CheckCircle2, Globe, Code } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface HumanViewProps {
@@ -17,16 +17,18 @@ export default function HumanView({
   htmlContent, 
   onHtmlChange 
 }: HumanViewProps) {
+  const [showSource, setShowSource] = useState(false);
+
   return (
-    <div className="max-w-xl mx-auto flex flex-col items-center justify-center h-full text-neutral-800">
-      <div className="text-center mb-8">
-        <h2 className="text-2xl font-bold text-neutral-900 uppercase tracking-tight">
+    <div className="max-w-2xl mx-auto flex flex-col items-center justify-center h-full text-neutral-200">
+      <div className="text-center mb-6">
+        <h2 className="text-xl font-semibold uppercase tracking-[0.2em] text-neutral-100">
           {labMode === "pdf" ? "Laboratorio de Documentos" : "Laboratorio Web"}
         </h2>
-        <p className="text-neutral-600 text-sm mt-2">
+        <p className="text-neutral-500 text-xs mt-2">
           {labMode === "pdf" 
-            ? "Sube un archivo PDF para analizar posibles inyecciones de prompt en metadatos." 
-            : "Inserta el código HTML del sitio web que la IA debe analizar y resumir."}
+            ? "Sube un PDF para analizar inyecciones en metadatos y cuerpo." 
+            : "Renderiza la pagina para el usuario y analiza el HTML crudo en el motor."}
         </p>
       </div>
       
@@ -40,22 +42,22 @@ export default function HumanView({
           />
           
           <div className={cn(
-            "w-full h-64 border-4 border-dashed rounded-2xl flex flex-col items-center justify-center p-8 text-center transition-all duration-300 shadow-sm",
+            "w-full h-64 border-2 border-dashed rounded-2xl flex flex-col items-center justify-center p-8 text-center transition-all duration-300 shadow-sm",
             file 
-              ? "border-green-500 bg-green-50 ring-4 ring-green-500/10" 
-              : "border-neutral-200 bg-neutral-50 group-hover:border-blue-400 group-hover:bg-blue-50/50"
+              ? "border-green-500/60 bg-green-500/10 ring-2 ring-green-500/10" 
+              : "border-neutral-800 bg-neutral-900/70 group-hover:border-blue-500/60 group-hover:bg-blue-500/10"
           )}>
             {file ? (
               <>
                 <div className="w-16 h-16 bg-green-500/20 rounded-full flex items-center justify-center mb-4">
-                  <CheckCircle2 className="w-8 h-8 text-green-500" />
+                  <CheckCircle2 className="w-8 h-8 text-green-400" />
                 </div>
-                <p className="font-semibold text-neutral-900">{file.name}</p>
-                <p className="text-xs text-neutral-600 mt-2 font-mono uppercase">
+                <p className="font-semibold text-neutral-100">{file.name}</p>
+                <p className="text-xs text-neutral-400 mt-2 font-mono uppercase">
                   {(file.size / 1024).toFixed(1)} KB • PDF Document
                 </p>
                 <button 
-                  className="mt-4 text-xs font-bold text-red-500 hover:text-red-600 uppercase tracking-widest"
+                  className="mt-4 text-xs font-bold text-red-400 hover:text-red-300 uppercase tracking-widest"
                   onClick={(e) => {
                     e.stopPropagation();
                     onFileChange(null);
@@ -66,12 +68,12 @@ export default function HumanView({
               </>
             ) : (
               <>
-                <div className="w-16 h-16 bg-neutral-200 dark:bg-neutral-800 rounded-full flex items-center justify-center mb-4 group-hover:bg-blue-500/20 transition-colors">
-                  <UploadCloud className="w-8 h-8 text-neutral-400 group-hover:text-blue-500 transition-colors" />
+                <div className="w-16 h-16 bg-neutral-800 rounded-full flex items-center justify-center mb-4 group-hover:bg-blue-500/20 transition-colors">
+                  <UploadCloud className="w-8 h-8 text-neutral-400 group-hover:text-blue-400 transition-colors" />
                 </div>
-                <p className="font-medium text-neutral-600 text-sm">Arrastra tu PDF aquí o haz clic para abrir</p>
-                <p className="text-xs text-neutral-400 mt-2 italic">
-                  Solo archivos <span className="font-bold text-neutral-500">.pdf</span>
+                <p className="font-medium text-neutral-300 text-sm">Arrastra tu PDF aqui o haz clic para abrir</p>
+                <p className="text-xs text-neutral-500 mt-2 italic">
+                  Solo archivos <span className="font-bold text-neutral-300">.pdf</span>
                 </p>
               </>
             )}
@@ -79,17 +81,37 @@ export default function HumanView({
         </div>
       ) : (
         <div className="w-full flex flex-col gap-4">
-          <div className="relative">
-            <div className="absolute top-4 left-4 text-neutral-400">
-              <Code className="w-4 h-4" />
+          <div className="rounded-2xl border border-neutral-800 bg-neutral-950 shadow-inner overflow-hidden">
+            <div className="flex items-center justify-between px-4 py-2 bg-neutral-900 border-b border-neutral-800 text-[10px] uppercase tracking-[0.2em] text-neutral-500">
+              <div className="flex items-center gap-2">
+                <Globe className="w-3.5 h-3.5 text-blue-400" />
+                Vista navegador
+              </div>
+              <button
+                onClick={() => setShowSource((prev) => !prev)}
+                className="flex items-center gap-2 rounded-full border border-neutral-800 px-3 py-1 text-[9px] font-bold text-neutral-400 hover:text-neutral-200"
+              >
+                <Code className="w-3 h-3" />
+                {showSource ? "Ocultar HTML" : "Editar HTML"}
+              </button>
             </div>
-            <textarea
-              value={htmlContent}
-              onChange={(e) => onHtmlChange?.(e.target.value)}
-              placeholder="Copia aquí el código HTML..."
-              className="w-full h-80 bg-neutral-50 border-2 border-neutral-200 rounded-xl p-10 font-mono text-xs text-neutral-800 focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-400 transition-all resize-none shadow-inner"
-            />
+            <div className="p-5 bg-[#f5f1ea] text-neutral-900">
+              <div dangerouslySetInnerHTML={{ __html: htmlContent || "" }} />
+            </div>
           </div>
+          {showSource && (
+            <div className="relative">
+              <div className="absolute top-4 left-4 text-neutral-500">
+                <Code className="w-4 h-4" />
+              </div>
+              <textarea
+                value={htmlContent}
+                onChange={(e) => onHtmlChange?.(e.target.value)}
+                placeholder="Copia aqui el codigo HTML..."
+                className="w-full h-64 bg-neutral-900 border border-neutral-800 rounded-xl p-10 font-mono text-xs text-neutral-200 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-400 transition-all resize-none"
+              />
+            </div>
+          )}
           <p className="text-[10px] text-neutral-400 text-center uppercase tracking-widest font-black flex items-center justify-center gap-2">
             <Globe className="w-3 h-3 text-blue-500" />
             Simulador de Web Scraping Activo
@@ -97,16 +119,6 @@ export default function HumanView({
         </div>
       )}
 
-      <div className="mt-8 flex items-center justify-between text-[10px] text-neutral-400 border-t border-neutral-100 pt-6 w-full uppercase tracking-widest font-black">
-        <div className="flex items-center gap-2">
-          <div className="w-2 h-2 rounded-full bg-blue-500 animate-pulse" />
-          <span>Análisis de Contenido</span>
-        </div>
-        <div className="flex items-center gap-2">
-          <div className="w-2 h-2 rounded-full bg-green-500" />
-          <span>Filtro de Seguridad Activo</span>
-        </div>
-      </div>
     </div>
   );
 }
