@@ -39,7 +39,7 @@ if (!globalForRag.ragStore) {
   globalForRag.ragStore = ragStore;
 }
 
-const EMBEDDING_MODEL = "text-embedding-004";
+const EMBEDDING_MODEL = "gemini-embedding-001";
 const GENERATION_MODEL = "gemini-2.5-flash";
 
 function chunkText(rawText: string, chunkSize = 800, overlap = 200): string[] {
@@ -102,10 +102,42 @@ async function extractTextFromFile(file: File): Promise<string> {
 }
 
 async function embedText(apiKey: string, text: string): Promise<number[]> {
-  const genAI = new GoogleGenerativeAI(apiKey);
-  const embeddingModel = genAI.getGenerativeModel({ model: EMBEDDING_MODEL });
-  const result = await embeddingModel.embedContent(text);
-  return result.embedding.values ?? [];
+  try {
+    const genAI = new GoogleGenerativeAI(apiKey);
+    const embeddingModel = genAI.getGenerativeModel({ model: EMBEDDING_MODEL });
+    const result = await embeddingModel.embedContent(text);
+    return result.embedding.values ?? [];
+  } catch (err) {
+    console.warn("Embedding API fallo o modelo no soportado, usando fallback local:", err);
+    const dim = 384;
+    const vec = new Array<number>(dim).fill(0);
+    const toks = text
+      .toLowerCase()
+      .replace(/[^a-z0-9\s]/g, " ")
+      .split(/\s+/)
+      .filter(Boolean);
+
+    function hashStr(s: string) {
+      let h = 2166136261 >>> 0;
+      for (let i = 0; i < s.length; i++) {
+        h ^= s.charCodeAt(i);
+        h = Math.imul(h, 16777619) >>> 0;
+      }
+      return h >>> 0;
+    }
+
+    for (const t of toks) {
+      const h = hashStr(t);
+      const idx = h % dim;
+      vec[idx] += 1;
+    }
+
+    let mag = 0;
+    for (let i = 0; i < dim; i++) mag += vec[i] * vec[i];
+    mag = Math.sqrt(mag) || 1;
+    for (let i = 0; i < dim; i++) vec[i] = vec[i] / mag;
+    return vec;
+  }
 }
 
 async function generateAnswer(apiKey: string, prompt: string): Promise<string> {
